@@ -131,7 +131,7 @@ struct Factor {
             // can simply update our starting point.
             var j = 0
             assignment[varMap[j]] += 1
-            start += 1
+            start += strides[varMap[j]]
             while assignment[varMap[j]] == cardinalities[varMap[j]] {
                 assignment[varMap[j]] = 0
                 j += 1
@@ -144,6 +144,15 @@ struct Factor {
         }
         
         return result
+    }
+    
+    func normalize() -> Factor {
+        let z = values.reduce(0.0, +)
+        guard !z.isZero else {
+            return self
+        }
+        let normalized = values.map { $0 / z }
+        return Factor(scope: scope, cardinalities: cardinalities, values: normalized)!
     }
 
     private func getIndex(forAssignment assignment: [Int]) -> Int {
@@ -219,6 +228,11 @@ extension Factor {
             }
         }
         return result
+    }
+    
+    static func * (left: Factor, right: Double) -> Factor {
+        let scaled = left.values.map { $0 * right }
+        return Factor(scope: left.scope, cardinalities: left.cardinalities, values: scaled)!
     }
 }
 

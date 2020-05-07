@@ -68,6 +68,22 @@ final class FactorTests: XCTestCase {
         }
     }
     
+    func testBeliefPropagation() {
+        let phi2_5 = Factor(scope: [2, 5], cardinalities: [2, 2], values: [10, 1, 1, 10])!
+        let delta2_3 = 1.0
+        let delta4_3 = 1.0
+        let delta7_3 = 1.0
+        
+        let phi4_5 = Factor(scope: [4, 5], cardinalities: [2, 2], values: [10, 1, 1, 10])!
+        let delta1_4 = 1.0
+        let delta3_6 = (phi2_5 * delta2_3 * delta4_3 * delta7_3).marginalize(overVarId: 2)
+        let b6 = (phi4_5 * delta3_6 * delta1_4).normalize()
+        let expected = 0.4545
+        let actual = b6[1, 1]
+        let error = abs(actual - expected)
+        XCTAssert(error <= 0.001)
+    }
+    
     static var allTests = [
         ("testExample", testExample),
     ]
